@@ -9,8 +9,8 @@ import           Data.Char (isDigit, toUpper)
 
 -- | Read a number with a postfix, e.g
 --
--- >>> (readNum "9M" :: Int)
--- Just 9000000
+-- >>> (readNum "1.23M" :: Int)
+-- Just 1230000
 --
 readNum :: Num a => String -> Maybe a
 readNum str' = do
@@ -39,10 +39,10 @@ readNum str' = do
     readExp "Y" = Just 24
     readExp _   = Nothing
 
--- | Show a number with a postfix:
+-- | Show a number with a postfix and the given number of digits
 --
--- >>> showNum (Just 3) 99000000
--- "99.000M"
+-- >>> showNum (Just 3) 1234567
+-- "1.234M"
 --
 showNum :: (Show a, Integral a) => Maybe Int -> a -> String
 showNum digits n = if n < 0 then '-' : go (negate n) else go n
@@ -63,5 +63,5 @@ showNum digits n = if n < 0 then '-' : go (negate n) else go n
         (n',r') = divMod n e'
     show' (b,e) =
       case digits of
-        Just r | r > 0 -> show b <> "." <> take r (show e)
+        Just r | r > 0 -> show b <> "." <> take r (show e <> repeat '0')
         _ -> show b

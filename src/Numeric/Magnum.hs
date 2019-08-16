@@ -1,4 +1,5 @@
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE ViewPatterns #-}
 
 module Numeric.Magnum
   ( readNum
@@ -6,6 +7,7 @@ module Numeric.Magnum
   ) where
 
 import           Data.Char (isDigit, toUpper)
+import           Data.Maybe (fromMaybe)
 
 -- | Read a number with a postfix, e.g
 --
@@ -42,7 +44,7 @@ readNum str' = do
 -- | Show a number with a postfix and the given number of digits
 --
 -- >>> showNum (Just 3) 1234567
--- "1.234M"
+-- "1.23M"
 --
 showNum :: (Show a, Integral a) => Maybe Int -> a -> String
 showNum digits n = if n < 0 then '-' : go (negate n) else go n
@@ -61,7 +63,7 @@ showNum digits n = if n < 0 then '-' : go (negate n) else go n
       where
         e' = 10^e
         (n',r') = divMod n e'
-    show' (b,e) =
-      case digits of
-        Just r | r > 0 -> show b <> "." <> take r (show e <> repeat '0')
-        _ -> show b
+    show' (show -> b,show -> e) =
+      let r = fromMaybe 0 digits - length b
+       in if r > 0 then b <> "." <> take r (e <> repeat '0')
+                   else b
